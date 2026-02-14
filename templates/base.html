@@ -28,9 +28,32 @@
                         <a class="nav-link" href="#">Link</a>
                     </li>
                 </ul>
-                <form class="d-flex">
+                <!-- <form class="d-flex">
                     <a href="/register" class="btn btn-primary mx-2" role="btn">Register</a>
                     <a href="/login" class="btn btn-primary" role="btn">Login</a>
+                </form> -->
+
+                <form class="d-flex">
+
+                    {# If user is logged in #}
+                    {% if 'email' in session %}
+                    <a class="btn btn-danger" href="/logout">Logout</a>
+
+                    {% else %}
+                    {# User is NOT logged in #}
+
+                    {# Show Register button only if NOT on register page #}
+                    {% if request.path != '/register' %}
+                    <a class="btn btn-primary mx-2" href="/register">Register</a>
+                    {% endif %}
+
+                    {# Show Login button only if NOT on login page #}
+                    {% if request.path != '/login' %}
+                    <a class="btn btn-primary" href="/login">Login</a>
+                    {% endif %}
+
+                    {% endif %}
+
                 </form>
             </div>
         </div>
