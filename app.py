@@ -66,7 +66,7 @@ def login():
 def dashboard():
     if 'email' in session:
         user = User.query.filter_by(email=session['email']).first()
-        return render_template("dashboard.html", user=user)
+        return render_template("dashboard.html", user=user.name)
     return redirect('/login')
 
 @app.route('/logout')
