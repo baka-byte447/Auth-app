@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, redirect, session
+from flask import Flask, redirect, render_template, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 
@@ -11,8 +11,8 @@ app.secret_key = 'secret_key'
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), nullable = False)
-    email = db.Column(db.String(100), unique = True)
-    password = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique = True, nullable = False)
+    password = db.Column(db.String(100), nullable = False)
     
     def __init__(self, name, email, password):
         self.name = name
@@ -34,17 +34,41 @@ def home():
 
 @app.route("/register", methods=['GET','POST'])
 def register():
+    
+    errors = {}
+
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
-        
+
+        if not name or name.strip() == "":
+            errors['name'] = "Name is Required"
+
+        if not email or email.strip() == "":
+            errors['email'] = "Email is Required"
+
+        if not password:
+            errors['password'] = "Password should not be Empty"
+        elif len(password) < 6:
+            errors['password'] = "Password should be at least 6 characters"
+
+        if not errors:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                errors['email'] = "This Email has already been used"
+
+        if errors:
+            return render_template("register.html", errors=errors, name=name, email=email)
+
         new_user = User(name=name, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
+
         return redirect('/login')
     
-    return render_template("register.html")
+    return render_template("register.html", errors={})
+
 
 @app.route("/login", methods=['GET','POST'])
 def login():
